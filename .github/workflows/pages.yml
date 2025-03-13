@@ -1,0 +1,44 @@
+name: github pages
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches:
+      - pages
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: setup bot identity
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: build
+        run: |
+          git rev-parse --abbrev-ref HEAD
+          mkdir -p www
+          touch www/.nojekyll
+          cp chains/default.elk.svg www
+          echo hi >index.html
+          echo hey >www/index.html
+
+      - name: new branch
+        run: |
+          git switch --orphan gh-pages
+
+      - name: commit
+        run: |
+          git add index.html www
+          git commit -m "www"
+
+      - name: push
+        run: |
+          git push --force origin gh-pages
